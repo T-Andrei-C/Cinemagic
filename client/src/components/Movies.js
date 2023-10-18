@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import Movie from "./Movie";
 import MovieDetails from "./MovieDetails";
+import {AiFillHeart, AiOutlineHeart} from "react-icons/ai";
 
 export default function Movies({ movies }) {
   let [moviesToDisplay, setMoviesToDisplay] = useState(movies);
@@ -95,13 +96,13 @@ const filterByGenre = (e) => {
 const isFavorite = (movie) => {
   if (favorites.length) {
       const has = (element) => element.Title === movie.Title;
-      return favorites.some(has) ? "-" : "+";
+      return favorites.some(has) ? <AiFillHeart/> : <AiOutlineHeart/>;
   }
-  return "+";
+  return <AiOutlineHeart/>;
 };
 
 const addOrRem = (item) =>
-  isFavorite(item) === "+"
+  isFavorite(item).type.name === <AiOutlineHeart/>.type.name
     ? addToFavorites(item)
     : deleteFromFavorites(item);
 
@@ -153,13 +154,9 @@ const deleteFromCart = async(movie) => {
 
 const updateQuanitity = async (movie, e) => {
   const currentMovie = cart.find(item => item.Title === movie.Title);
+  const quantity = e.target.innerText === "+" ?  currentMovie.Quantity + 1 : currentMovie.Quantity - 1;
 
-  let movieCopy;
-  if (e.target.innerText === "+"){
-    movieCopy = {Title: movie.Title, Quantity: currentMovie.Quantity + 1}
-  } else {
-    movieCopy = {Title: movie.Title, Quantity: currentMovie.Quantity - 1}
-  }
+  const movieCopy = { Title: movie.Title, Quantity: quantity, Price: (movie.Price * quantity).toFixed(2) }
 
   const request = await fetch("http://localhost:5000/cart",{
     method:"PATCH",
@@ -169,7 +166,6 @@ const updateQuanitity = async (movie, e) => {
     body:JSON.stringify(movieCopy)
   })
   const response = await request.json();
-  console.log(response);
   setItemToSave(previous => [...previous, movie]);
 }
 

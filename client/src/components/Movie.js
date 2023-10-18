@@ -16,7 +16,7 @@ export default function Movie({
       <img src={movie.Poster} alt={movie.Title} onClick={onClick} />
       <div>
         <h3>{movie.Title}</h3>
-        <p>$14.99</p>
+        <p>${movie.Price}</p>
       </div>
       <div>
         <button className="add-remove-favorites" onClick={addOrRemove}>

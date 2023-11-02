@@ -2,7 +2,8 @@ import {useState, useEffect, useRef} from "react";
 import Movie from "../components/Movie";
 import MovieDetails from "./MovieDetails";
 import {AiFillHeart, AiOutlineHeart} from "react-icons/ai";
-import {getFavoriteMovies} from "../services/CRUDFavoriteMovies";
+import {addToFavoriteMovies, deleteFromFavoriteMovies, getFavoriteMovies} from "../services/CRUDFavoriteMovies";
+import {addItemToCart, deleteItemFromCart, getCartItems, updateCartQuantity} from "../services/CRUDCart";
 
 export default function Movies({movies}) {
     let [moviesToDisplay, setMoviesToDisplay] = useState(movies);
@@ -16,50 +17,17 @@ export default function Movies({movies}) {
     const genres = [...new Set(movies.map((movie) => movie.Genre).join(",").replace(/\s/g, '').split(","))];
     const btnRef = useRef();
 
-    const getFavorites = async (abort) => {
-        try {
-            const response = await fetch("http://localhost:5000/favorites", {signal: abort.signal});
-            const data = await response.json();
-            setFavorites(data);
-        } catch (error) {
-            if (error.name === "AbortError") {
-                console.log('Fetch aborted');
-            } else {
-                console.log(error.message);
-            }
-        }
-    };
-
-    useEffect(() => {
-        // const abortCont = new AbortController();
-        // getFavorites(abortCont);
-        getFavoriteMovies(setFavorites);
-        // return () => abortCont.abort();
-    }, [favoriteToSave]);
-
-    const getCart = async (abort) => {
-        try {
-            const response = await fetch("http://localhost:5000/cart", {signal: abort.signal});
-            const data = await response.json();
-            setCart(data);
-        } catch (error) {
-            if (error.name === "AbortError") {
-                console.log('Fetch aborted');
-            } else {
-                console.log(error.message);
-            }
-        }
-    };
-
-    useEffect(() => {
-        const abortCont = new AbortController();
-        getCart(abortCont);
-        return () => abortCont.abort();
-    }, [itemToSave]);
-
     const zaaz = "Sorted Z-A | Sort A-Z";
     const azza = "Sorted A-Z | Sort Z-A";
     const sbt = "Sort by Title";
+
+    useEffect(() => {
+        getFavoriteMovies(setFavorites);
+    }, [favoriteToSave]);
+
+    useEffect(() => {
+        getCartItems(setCart);
+    }, [itemToSave]);
 
     const sortingFunction = (array, reverse = false) =>
         [...array].sort((a, b) =>
@@ -104,9 +72,12 @@ export default function Movies({movies}) {
     };
 
     const addOrRem = (item) =>
-        isFavorite(item).type.name === <AiOutlineHeart/>.type.name
-            ? addToFavorites(item)
-            : deleteFromFavorites(item);
+        // isFavorite(item).type.name === <AiOutlineHeart/>.type.name
+        //     ? addToFavorites(item)
+        //     : deleteFromFavorites(item);
+    isFavorite(item).type.name === <AiOutlineHeart/>.type.name
+        ? addToFavoriteMovies(item, setFavoriteToSave)
+        : deleteFromFavoriteMovies(item, setFavoriteToSave);
 
     const isInCart = (movie) => {
         if (cart.length) {
@@ -125,20 +96,8 @@ export default function Movies({movies}) {
             body: JSON.stringify({...movie})
         })
         const response = await request.json();
-        console.log(response);
         setItemToSave(previous => [...previous, movie]);
     }
-
-    const addToFavorites = async (movie) => {
-        const request = await fetch("http://localhost:5000/favorites", {
-            method: "POST",
-            headers: {"Content-type": "application/json"},
-            body: JSON.stringify({...movie}),
-        });
-        const response = await request.json();
-        console.log(response);
-        setFavoriteToSave((previous) => [...previous, movie]);
-    };
 
     const deleteFromCart = async (movie) => {
         const movieToDelete = JSON.parse(JSON.stringify(movie));
@@ -171,18 +130,6 @@ export default function Movies({movies}) {
         setItemToSave(previous => [...previous, movie]);
     }
 
-
-    const deleteFromFavorites = async (movie) => {
-        const request = await fetch("http://localhost:5000/favorites", {
-            method: "DELETE",
-            headers: {"Content-type": "application/json"},
-            body: JSON.stringify({title: movie.Title}),
-        });
-        const response = await request.json();
-        console.log(response);
-        setFavoriteToSave((previous) => [...previous, movie]);
-    };
-
     return (
         <>
             {favorites && renderOne ? (
@@ -195,8 +142,8 @@ export default function Movies({movies}) {
                     deleteCart={() => deleteFromCart(renderOne)}
                     quantity={cart}
                     checkCart={isInCart(renderOne)}
-                    plusQuantity={(e) => updateQuanitity(renderOne, e)}
-                    minusQuantity={(e) => updateQuanitity(renderOne, e)}
+                    plusQuantity={(e) => {updateCartQuantity(renderOne, e, cart); setItemToSave(previous => [...previous, renderOne])}}
+                    minusQuantity={(e) => {updateCartQuantity(renderOne, e, cart); setItemToSave(previous => [...previous, renderOne])}}
                 />
             ) : (
                 <div className="movies">
@@ -224,12 +171,12 @@ export default function Movies({movies}) {
                                     onClick={() => setRenderOne(movie)}
                                     addOrRemove={() => addOrRem(movie)}
                                     checkFavorite={isFavorite(movie)}
-                                    addToCart={() => addToCart(movie)}
-                                    deleteCart={() => deleteFromCart(movie)}
+                                    addToCart={() => {addItemToCart(movie); setItemToSave(previous => [...previous, movie])}}
+                                    deleteCart={() => {deleteItemFromCart(movie); setItemToSave(previous => [...previous, movie])}}
                                     quantity={cart}
                                     checkCart={isInCart(movie)}
-                                    plusQuantity={(e) => updateQuanitity(movie, e)}
-                                    minusQuantity={(e) => updateQuanitity(movie, e)}
+                                    plusQuantity={(e) => {updateCartQuantity(movie, e, cart); setItemToSave(previous => [...previous, movie])}}
+                                    minusQuantity={(e) => {updateCartQuantity(movie, e, cart); setItemToSave(previous => [...previous, movie])}}
                                 />
                             )}
                     </div>

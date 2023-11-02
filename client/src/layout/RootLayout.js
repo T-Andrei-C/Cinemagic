@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
-import cinemagic from './img/cinemagic.png'
-import cart from './img/cart.png';
+import cinemagic from '../components/img/cinemagic.png'
+import cart from '../components/img/cart.png';
 
 export default function RootLayout() {
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import LoadingPage from './LoadingPage';
+import Loading from '../components/Loading';
 import Movies from './Movies';
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
   }, [])
 
   return loading ? (
-      <LoadingPage />
+      <Loading />
     ) : movies ? (
       <Movies movies={movies}/>
     ) : null;

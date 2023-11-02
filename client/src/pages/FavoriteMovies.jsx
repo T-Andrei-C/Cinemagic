@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import LoadingPage from './LoadingPage';
+import Loading from '../components/Loading';
 
 export default function FavoriteMovies() {
 
@@ -19,7 +19,7 @@ export default function FavoriteMovies() {
       } else {
       console.log(error.message);
       }
-    };
+    }
   };
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function FavoriteMovies() {
   }
 
     return loading ? (
-        <LoadingPage />
+        <Loading />
       ) : (
         <div className='wraper'>
         <div className='fav-btns'>

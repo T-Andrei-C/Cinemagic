@@ -1,8 +1,7 @@
-export const getCartItems = async (setCart) => {
+export const getCartItems = async () => {
     try {
         const response = await fetch("http://localhost:5000/cart");
-        const data = await response.json();
-        setCart(data);
+        return await response.json();
     } catch (error) {
         if (error.name === "AbortError") {
             console.log('Fetch aborted');
@@ -12,7 +11,7 @@ export const getCartItems = async (setCart) => {
     }
 }
 
-export const addItemToCart = async (movie, setItemToSave) => {
+export const addItemToCart = async (movie) => {
     const request = await fetch("http://localhost:5000/cart", {
         method: "POST",
         headers: {
@@ -22,8 +21,7 @@ export const addItemToCart = async (movie, setItemToSave) => {
     })
 }
 
-export const deleteItemFromCart = async (movie) => {
-    const movieToDelete = JSON.parse(JSON.stringify(movie));
+export const deleteItemFromCart = async (movieToDelete) => {
     const request = await fetch("http://localhost:5000/cart", {
         method: "DELETE",
         headers: {
@@ -33,19 +31,15 @@ export const deleteItemFromCart = async (movie) => {
     })
 }
 
-export const updateCartQuantity = async (movie, e, cart) => {
-    const currentMovie = cart.find(item => item.Title === movie.Title);
-    const quantity = e.target.innerText === "+" ? currentMovie.Quantity + 1 : currentMovie.Quantity - 1;
-
-    const movieCopy = {Title: movie.Title, Quantity: quantity, Price: (movie.Price * quantity).toFixed(2)}
-
+export const updateCartQuantity = async (movie) => {
     const request = await fetch("http://localhost:5000/cart", {
         method: "PATCH",
         headers: {
             "Content-type": "application/json"
         },
-        body: JSON.stringify(movieCopy)
+        body: JSON.stringify(movie)
     })
+    return await request.json();
     // const response = await request.json();
     // setItemToSave(previous => [...previous, movie]);
 }

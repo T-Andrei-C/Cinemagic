@@ -63,4 +63,15 @@ router.route("/")
                 console.log(error.message);
             });
     });
+
+router.route("/:title")
+    .get(async (req, res) => {
+        try {
+            const response = await Movie.findOne({Title: req.params.title});
+            res.json(response);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Data could not be found");
+        }
+    })
 module.exports = router;

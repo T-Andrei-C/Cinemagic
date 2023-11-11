@@ -4,6 +4,7 @@ import MovieDetails from "./MovieDetails";
 import {AiFillHeart, AiOutlineHeart} from "react-icons/ai";
 import {addToFavoriteMovies, deleteFromFavoriteMovies, getFavoriteMovies} from "../services/CRUDFavoriteMovies";
 import {addItemToCart, deleteItemFromCart, getCartItems, updateCartQuantity} from "../services/CRUDCart";
+import {useNavigate} from "react-router-dom";
 
 export default function Movies({movies}) {
     let [moviesToDisplay, setMoviesToDisplay] = useState(movies);
@@ -16,17 +17,19 @@ export default function Movies({movies}) {
     const [itemToSave, setItemToSave] = useState([]);
     const genres = [...new Set(movies.map((movie) => movie.Genre).join(",").replace(/\s/g, '').split(","))];
     const btnRef = useRef();
+    const navigate = useNavigate();
 
     const zaaz = "Sorted Z-A | Sort A-Z";
     const azza = "Sorted A-Z | Sort Z-A";
     const sbt = "Sort by Title";
 
     useEffect(() => {
-        getFavoriteMovies(setFavorites);
+        getFavoriteMovies().then(movies => setFavorites(movies));
     }, [favoriteToSave]);
 
+
     useEffect(() => {
-        getCartItems(setCart);
+        getCartItems().then(items => setCart(items));
     }, [itemToSave]);
 
     const sortingFunction = (array, reverse = false) =>
@@ -75,9 +78,9 @@ export default function Movies({movies}) {
         // isFavorite(item).type.name === <AiOutlineHeart/>.type.name
         //     ? addToFavorites(item)
         //     : deleteFromFavorites(item);
-    isFavorite(item).type.name === <AiOutlineHeart/>.type.name
-        ? addToFavoriteMovies(item, setFavoriteToSave)
-        : deleteFromFavoriteMovies(item, setFavoriteToSave);
+        isFavorite(item).type.name === <AiOutlineHeart/>.type.name
+            ? addToFavoriteMovies(item, setFavoriteToSave)
+            : deleteFromFavoriteMovies(item, setFavoriteToSave);
 
     const isInCart = (movie) => {
         if (cart.length) {
@@ -132,56 +135,37 @@ export default function Movies({movies}) {
 
     return (
         <>
-            {favorites && renderOne ? (
-                <MovieDetails
-                    movie={renderOne}
-                    onClick={() => setRenderOne(null)}
-                    addOrRemove={() => addOrRem(renderOne)}
-                    checkFavorite={isFavorite(renderOne)}
-                    addToCart={() => addToCart(renderOne)}
-                    deleteCart={() => deleteFromCart(renderOne)}
-                    quantity={cart}
-                    checkCart={isInCart(renderOne)}
-                    plusQuantity={(e) => {updateCartQuantity(renderOne, e, cart); setItemToSave(previous => [...previous, renderOne])}}
-                    minusQuantity={(e) => {updateCartQuantity(renderOne, e, cart); setItemToSave(previous => [...previous, renderOne])}}
-                />
-            ) : (
-                <div className="movies">
-                    <div className="sort-btns">
-                        <select onChange={filterByGenre}>
-                            <option disabled selected>Genres</option>
-                            {genres && genres.map((genre, i) => <option key={i}>{genre}</option>)}
-                        </select>
-                        <button className="sort" onClick={sorter} ref={btnRef}>
-                            {sbt}
-                        </button>
-                        <input
-                            type="text"
-                            placeholder="-- Search Movie --"
-                            value={searchPhraze}
-                            onChange={search}
-                        />
-                    </div>
-                    <div className="all-movies">
-                        {favorites && moviesToDisplay && cart &&
-                            moviesToDisplay.map((movie, i) =>
-                                <Movie
-                                    movie={movie}
-                                    key={i}
-                                    onClick={() => setRenderOne(movie)}
-                                    addOrRemove={() => addOrRem(movie)}
-                                    checkFavorite={isFavorite(movie)}
-                                    addToCart={() => {addItemToCart(movie); setItemToSave(previous => [...previous, movie])}}
-                                    deleteCart={() => {deleteItemFromCart(movie); setItemToSave(previous => [...previous, movie])}}
-                                    quantity={cart}
-                                    checkCart={isInCart(movie)}
-                                    plusQuantity={(e) => {updateCartQuantity(movie, e, cart); setItemToSave(previous => [...previous, movie])}}
-                                    minusQuantity={(e) => {updateCartQuantity(movie, e, cart); setItemToSave(previous => [...previous, movie])}}
-                                />
-                            )}
-                    </div>
+            <div className="movies">
+                <div className="sort-btns">
+                    <select onChange={filterByGenre}>
+                        <option disabled selected>Genres</option>
+                        {genres && genres.map((genre, i) => <option key={i}>{genre}</option>)}
+                    </select>
+                    <button className="sort" onClick={sorter} ref={btnRef}>
+                        {sbt}
+                    </button>
+                    <input
+                        type="text"
+                        placeholder="-- Search Movie --"
+                        value={searchPhraze}
+                        onChange={search}
+                    />
                 </div>
-            )}
+                <div className="all-movies">
+                    {favorites && moviesToDisplay && cart &&
+                        moviesToDisplay.map((movie, i) =>
+                            <Movie
+                                key={i}
+                                movie={movie}
+                                cart={cart}
+                                onClick={() => navigate(`/${movie.Title}/details`)}
+                                favoriteMovies={favorites}
+                                setFavoriteToSave={setFavoriteToSave}
+                                setItemToSave={setItemToSave}
+                            />
+                        )}
+                </div>
+            </div>
         </>
     );
 }

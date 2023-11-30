@@ -1,6 +1,8 @@
-export const getFavoriteMovies = async () => {
+export const getFavoriteMovies = async (setLoading) => {
     try {
+        setLoading(true);
         const response = await fetch("http://localhost:5000/favorites");
+        setLoading(false);
         return await response.json();
     } catch (error) {
         if (error.name === "AbortError") {

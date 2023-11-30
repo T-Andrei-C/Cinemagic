@@ -1,67 +1,57 @@
 import {useEffect, useState} from 'react';
 import Loading from '../components/Loading';
+import {getFavoriteMovies} from "../services/CRUDFavoriteMovies";
+import FavoritesButton from "../components/FavoritesButton";
 
 export default function FavoriteMovies() {
 
-  const [favorites, setFavorites] = useState(null);
-  const [loading, setLoading] = useState(false);
+    const [favorites, setFavorites] = useState([]);
+    const [favoriteToSave, setFavoriteToSave] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-  const getFavorites = async (abort) => {
-    try {
-      setLoading(true);
-      const response = await fetch("http://localhost:5000/favorites", {signal: abort.signal});
-      const data = await response.json();
-      setLoading(false);
-      setFavorites(data);
-    } catch (error) {
-      if(error.name === "AbortError") {
-        console.log('Fetch aborted');
-      } else {
-      console.log(error.message);
-      }
+    useEffect(() => {
+        getFavoriteMovies(setLoading).then(movies => setFavorites(movies));
+    }, [favoriteToSave]);
+
+    const sortByLongestRuntime = () => {
+        setFavorites(previous => [...previous].sort((a, b) => parseInt(b.Runtime) - parseInt(a.Runtime)))
     }
-  };
 
-  useEffect(() => {
-  const abortCont = new AbortController();
-  getFavorites(abortCont);
-  return () => abortCont.abort();
-}, []);
-
-  const sortByLongestRuntime = () => {
-    setFavorites(previous => [...previous].sort((a,b) => parseInt(b.Runtime) - parseInt(a.Runtime)))
-  }
-
-  const sortByShortestRuntime = () => {
-    setFavorites(previous => [...previous].sort((a,b) => parseInt(a.Runtime) - parseInt(b.Runtime)))
-  }
-
-  const sortByRating = () => {
-    setFavorites(previous => [...previous].sort((a,b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating)))
-  }
-
-    return loading ? (
-        <Loading />
-      ) : (
-        <div className='wraper'>
-        <div className='fav-btns'>
-          <button onClick={sortByLongestRuntime}>Longest Runtime</button>
-          <button onClick={sortByShortestRuntime}>Shortest Runtime</button>
-          <button onClick={sortByRating}>Best Rated</button>
-        </div>
-        <div className='favorites'>
-        {favorites && favorites.map((favorite, i)=> (
-          <div className='favorite' key={i}>
-            <img src={favorite.Poster} alt={favorite.Title}/>
-            <div>
-              <h3>{favorite.Title}</h3>
-              <p><b>Release Date:</b> {favorite.Released}</p>
-              <p><b>IMDb Rating:</b> {favorite.imdbRating}</p>
-              <p><b>Runtime:</b> {favorite.Runtime}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-      </div>
-      );
+    const sortByShortestRuntime = () => {
+        setFavorites(previous => [...previous].sort((a, b) => parseInt(a.Runtime) - parseInt(b.Runtime)))
     }
+
+    const sortByRating = () => {
+        setFavorites(previous => [...previous].sort((a, b) => parseFloat(b.imdbRating) - parseFloat(a.imdbRating)))
+    }
+
+    return loading ?
+        <Loading/>
+        : favorites.length !== 0 ?
+            (
+                <div className='wraper'>
+                    <div className='fav-btns'>
+                        <button onClick={sortByLongestRuntime}>Longest Runtime</button>
+                        <button onClick={sortByShortestRuntime}>Shortest Runtime</button>
+                        <button onClick={sortByRating}>Best Rated</button>
+                    </div>
+                    <div className='favorites'>
+                        {favorites && favorites.map((favorite, i) => (
+                            <div className='favorite' key={i}>
+                                <img src={favorite.Poster} alt={favorite.Title}/>
+                                <div>
+                                    <h3>{favorite.Title}
+                                        <FavoritesButton movie={favorite} setFavoriteToSave={setFavoriteToSave} favoriteMovies={favorites}/>
+                                    </h3>
+                                    <p><b>Release Date:</b> {favorite.Released}</p>
+                                    <p><b>IMDb Rating:</b> {favorite.imdbRating}</p>
+                                    <p><b>Runtime:</b> {favorite.Runtime}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : <div className="no-products">
+                    <p>You have no favorite movies!</p>
+                </div>
+}

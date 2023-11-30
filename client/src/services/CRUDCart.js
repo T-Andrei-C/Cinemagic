@@ -12,7 +12,7 @@ export const getCartItems = async () => {
 }
 
 export const addItemToCart = async (movie) => {
-    const request = await fetch("http://localhost:5000/cart", {
+    await fetch("http://localhost:5000/cart", {
         method: "POST",
         headers: {
             "Content-type": "application/json"
@@ -22,7 +22,7 @@ export const addItemToCart = async (movie) => {
 }
 
 export const deleteItemFromCart = async (movieToDelete) => {
-    const request = await fetch("http://localhost:5000/cart", {
+    await fetch("http://localhost:5000/cart", {
         method: "DELETE",
         headers: {
             "Content-type": "application/json"
@@ -40,6 +40,4 @@ export const updateCartQuantity = async (movie) => {
         body: JSON.stringify(movie)
     })
     return await request.json();
-    // const response = await request.json();
-    // setItemToSave(previous => [...previous, movie]);
 }

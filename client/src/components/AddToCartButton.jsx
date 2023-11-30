@@ -3,8 +3,7 @@ import {addItemToCart, deleteItemFromCart, updateCartQuantity} from "../services
 const AddToCartButton = ({cart, movie, setItemToSave}) => {
     const isInCart = () => {
         if (cart.length) {
-            const has = (element) => element.Title === movie.Title;
-            return cart.some(has) ? "Item In Cart" : "Add to Cart"
+            return cart.some(item => item.Title === movie?.Title) ? "Item In Cart" : "Add to Cart";
         }
         return "Add to Cart";
     }
@@ -28,18 +27,18 @@ const AddToCartButton = ({cart, movie, setItemToSave}) => {
 
     }
     return (
-        isInCart() === "Item In Cart" ? (
+        isInCart() === "Item In Cart"? (
             <div className="cart-btns">
-                <button onClick={cart.some(item => item.Title === movie.Title ? item.Quantity - 1 : '')
+                <button type="button" onClick={cart.some(item => item.Title === movie.Title ? item.Quantity - 1 : '')
                     ? updateQuantity : () => deleteFromCart()}
                         className="first-cart-btn"
                         style={{borderRadius: '5px', padding: '0.5em 1em'}}>-
                 </button>
                 <p>{cart.map(item => item.Title === movie.Title ? item.Quantity : '')}</p>
-                <button onClick={updateQuantity}>+</button>
+                <button type="button" onClick={updateQuantity}>+</button>
             </div>
         ) : (
-            <button className="add-remove-cart" onClick={addToCart}>
+            <button type="button" className="add-remove-cart" onClick={addToCart}>
                 {isInCart()}
             </button>
         )

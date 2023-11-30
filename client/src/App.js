@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import FavoriteMovies from "./pages/FavoriteMovies";
 import Cart from "./pages/Cart";
 import './App.scss';
-import MovieDetails2 from "./pages/MovieDetails2";
+import MovieDetails from "./pages/MovieDetails";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -12,7 +12,7 @@ const router = createBrowserRouter(
             <Route index element={<Home/>}/>
             <Route path="/favorites" element={<FavoriteMovies/>}/>
             <Route path="/checkout" element={<Cart/>}/>
-            <Route path="/:title/details" element={<MovieDetails2/>}/>
+            <Route path="/:title/details" element={<MovieDetails/>}/>
         </Route>
     )
 )
